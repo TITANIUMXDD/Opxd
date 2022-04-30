@@ -1555,7 +1555,8 @@ async def ping(e):
 
     
         
-# INVITE ALL OP
+# --------------------------------------------------------------------------------------------------------------------------------
+
 
 from telethon.errors import (
     ChannelInvalidError,
@@ -1565,10 +1566,8 @@ from telethon.errors import (
 from telethon.tl import functions
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.tl.functions.messages import GetFullChatRequest
-
-
 async def get_chatinfo(event):
-    chat = event.pattern_match.group(1)
+    chat = chat = event.text[10:]
     chat_info = None
     if chat:
         try:
@@ -1588,32 +1587,20 @@ async def get_chatinfo(event):
         try:
             chat_info = await event.client(GetFullChannelRequest(chat))
         except ChannelInvalidError:
-            await event.reply("`Invalid channel/group`")
+            await event.reply("Invalid channel/group")
             return None
         except ChannelPrivateError:
             await event.reply(
-                "`This is a private channel/group or I am banned from there`"
+                "This is a private channel/group or I am banned from there"
             )
             return None
         except ChannelPublicGroupNaError:
-            await event.reply("`Channel or supergroup doesn't exist`")
+            await event.reply("Channel or supergroup doesn't exist")
             return None
         except (TypeError, ValueError):
-            await event.reply("`Invalid channel/group`")
+            await event.reply("Invalid channel/group")
             return None
     return chat_info
-
-
-def make_mention(user):
-    if user.username:
-        return f"@{user.username}"
-    else:
-        return inline_mention(user)
-
-
-def inline_mention(user):
-    full_name = user_full_name(user) or "No Name"
-    return f"[{full_name}](tg://user?id={user.id})"
 
 
 def user_full_name(user):
@@ -1651,38 +1638,42 @@ def user_full_name(user):
 @put.on(events.NewMessage(incoming=True, pattern=r"\.inviteall"))
 
 async def get_users(event):
-    if event.sender_id in SMEX_USERS:
-        rkp = await event.reply("`processing...`")
+    if e.sender_id in SMEX_USERS:
+    	sender = await event.get_sender()
+    	me = await event.client.get_me()
+        mafia = await event.reply("processing...")
     else:
-        rkp = await event.edit("`processing...`")
-    rk1 = await get_chatinfo(event)
+        mafia = await event.reply("processing...")
+    kraken = await get_chatinfo(event)
     chat = await event.get_chat()
     if event.is_private:
-        return await rkp.edit("`Sorry, Can add users here`")
+        return await mafia.edit("Sorry, Cant add users here")
     s = 0
     f = 0
     error = "None"
 
-    await rkp.edit("**TerminalStatus**\n\n`Collecting Users.......`")
-    async for user in event.client.iter_participants(rk1.full_chat.id):
+    await mafia.edit("TerminalStatus\n\nCollecting Users.......")
+    async for user in event.client.iter_participants(kraken.full_chat.id):
         try:
             if error.startswith("Too"):
-                return await rkp.edit(
-                    f"**Terminal Finished With Error**\n(`May Got Limit Error from telethon Please try agin Later`)\n**Error** : \n`{error}`\n\n• Invited `{s}` people \n• Failed to Invite `{f}` people"
+                return await mafia.edit(
+                    f"Terminal Finished With Error\n(May Got Limit Error from telethon Please try agin Later)\nError : \n{error}\n\n• Invited {s} people \n• Failed to Invite {f} people"
                 )
             await event.client(
                 functions.channels.InviteToChannelRequest(channel=chat, users=[user.id])
             )
             s = s + 1
-            await rkp.edit(
-                f"**Terminal Running...**\n\n• Invited `{s}` people \n• Failed to Invite `{f}` people\n\n**× LastError:** `{error}`"
+            await mafia.edit(
+                f"Terminal Running...\n\n• Invited {s} people \n• Failed to Invite {f} people\n\n× LastError: {error}"
             )
         except Exception as e:
             error = str(e)
             f = f + 1
-    return await rkp.edit(
-        f"**Terminal Finished** \n\n• Successfully Invited `{s}` people \n• failed to invite `{f}` people"
-    )        
+    return await mafia.edit(
+        f"Terminal Finished \n\n• Successfully Invited {s} people \n• failed to invite {f} people"
+    )
+#################
+             
 
 # _______
 
